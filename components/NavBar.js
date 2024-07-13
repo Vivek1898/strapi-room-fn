@@ -27,7 +27,7 @@ const NavBar = ({ isLoggedIn , setIsLoggedIn}) => {
                     <MenuIcon />
                 </IconButton>
                 <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    StrApi Chat
+                    Strapi Chat
                 </Typography>
                 {isLoggedIn && (
                     <>

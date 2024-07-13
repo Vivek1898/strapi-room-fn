@@ -48,6 +48,7 @@ export default function Signup() {
                 const data = res.data;
                 if (data.jwt) {
                     localStorage.setItem('token', data.jwt);
+                    localStorage.setItem('user', JSON.stringify(data.user));
                     router.push('/room');
                     setSnackbarSeverity('success');
                     setSnackbarMessage('Signup successful');

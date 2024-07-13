@@ -12,13 +12,16 @@ import {
 import { MessageList, Input } from 'react-chat-elements';
 import 'react-chat-elements/dist/main.css';
 import SendIcon from '@mui/icons-material/Send';
-import {API_URL as SOCKET_URL} from "@/config";
+import Skeleton from '@mui/material/Skeleton';
+import { API_URL as SOCKET_URL } from "@/config";
 
+const CHAT_LOADING_COUNT = 10; // Number of skeleton items to show while loading
 
 export default function Chat() {
     const [messages, setMessages] = useState([]);
     const [input, setInput] = useState('');
     const [currentRoom, setCurrentRoom] = useState(null);
+    const [loading, setLoading] = useState(true); // Loading state for initial message fetch
     const socket = useRef(null); // Ref for socket instance
     const router = useRouter();
     const chatEndRef = useRef(null); // Ref for scrolling to bottom
@@ -81,6 +84,7 @@ export default function Chat() {
                     date: new Date(msg.createdAt),
                 }))
             );
+            setLoading(false); // Turn off loading state once messages are loaded
         });
 
         // Event listener for receiving current room name
@@ -132,6 +136,60 @@ export default function Chat() {
         }
     };
 
+    // Render loading skeleton while messages are loading
+    if (loading) {
+        return (
+            <Container
+                maxWidth="lg"
+                sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    minHeight: '90vh',
+                    padding: 2,
+                }}
+            >
+                <Typography variant="h6" gutterBottom>
+                    You are in: {router?.query?.roomname || 'Public'}
+                </Typography>
+                <Paper
+                    elevation={3}
+                    sx={{
+                        flexGrow: 1,
+                        overflowY: 'auto',
+                        padding: 2,
+                        marginBottom: 2,
+                        height: '70vh', // Set a fixed height for the chat container
+                    }}
+                >
+                    {[...Array(CHAT_LOADING_COUNT)].map((_, index) => (
+                        <Skeleton key={index} height={60} animation="wave" />
+                    ))}
+                </Paper>
+
+                <Divider sx={{ marginY: 1 }} />
+
+                <Input
+                    placeholder="Type here..."
+                    multiline={false}
+                    rightButtons={
+                        <Button
+                            color="primary"
+                            variant="contained"
+                            disabled
+                            startIcon={<SendIcon />}
+                        >
+                            Send
+                        </Button>
+                    }
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                />
+            </Container>
+        );
+    }
+
+    // Render chat content once messages are loaded
     return (
         <Container
             maxWidth="lg"
@@ -187,3 +245,4 @@ export default function Chat() {
         </Container>
     );
 }
+
